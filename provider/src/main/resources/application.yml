@@ -1,0 +1,13 @@
+
+server:
+  port: 18081
+  tomcat:
+    ##tomcat下最大连接数
+    max-connections: 8192
+    max-threads: 200
+    min-spare-threads: 20
+    uri-encoding: UTF-8
+    ##当所有可能的请求处理线程都在使用时，等待传入连接请求最大的队列长度
+    accept-count: 200
+    ##将保留在缓存中并在后续请求中重用的空闲处理器的最大数目。当设置为-1时，缓存将不受限制，理论最大大小等于最大连接数。
+    processor-cache: 200
