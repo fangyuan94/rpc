@@ -81,7 +81,7 @@ public class RPCFeignClientConfiguration {
                 .channel(NioServerSocketChannel.class)
                 .childHandler(new ChannelInitializer<SocketChannel>(){
                     @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
+                    protected void initChannel(SocketChannel ch) {
                         //为当前SocketChannel 添加Pipeline
                         ChannelPipeline pipeline = ch.pipeline();
                         pipeline.addLast(new RpcRequestDecoder());

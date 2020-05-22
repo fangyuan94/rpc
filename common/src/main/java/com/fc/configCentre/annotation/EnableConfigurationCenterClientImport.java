@@ -1,35 +1,40 @@
 package com.fc.configCentre.annotation;
 
 
-import com.fc.configCentre.ZookeeperConfigurationCLoseWarp;
+import com.fc.configCentre.config.ZookeeperConfigurationCentreProperties;
 
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.context.*;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.EnvironmentAware;
+import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
-import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.core.annotation.AnnotationAttributes;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
-
-import java.io.IOException;
-import java.util.Optional;
 
 /**
  * 扫描包初始化各访问rpc
  */
-@Slf4j
-public class EnableConfigurationCenterClientImport implements  ResourceLoaderAware,ImportBeanDefinitionRegistrar {
+public class EnableConfigurationCenterClientImport implements BeanFactoryAware, ResourceLoaderAware, EnvironmentAware,ImportBeanDefinitionRegistrar {
+
+    private  ResourceLoader resourceLoader;
+
+    private  Environment environment;
+
+    private BeanFactory beanFactory;
 
     private AutowireCapableBeanFactory autowireCapableBeanFactory;
 
     private DefaultListableBeanFactory defaultListableBeanFactory;
 
     private ApplicationContext applicationContext;
-
-    private ZookeeperConfigurationCLoseWarp zookeeperConfigurationCLoseWarp;
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
@@ -39,21 +44,17 @@ public class EnableConfigurationCenterClientImport implements  ResourceLoaderAwa
 
         if(annotationAttributes.getBoolean("enable")){
 
-            zookeeperConfigurationCLoseWarp = new ZookeeperConfigurationCLoseWarp();
-            this.instertSpringBean("zookeeperConfigurationCLoseWarp",zookeeperConfigurationCLoseWarp);
+            ZookeeperConfigurationCentreProperties zookeeperConfigurationCentreProperties = new ZookeeperConfigurationCentreProperties();
 
-            //注册钩子函数 当服务关闭时触发
-            Runtime.getRuntime().addShutdownHook(new Thread(()->{
-                log.info("配置系统被关闭了===========================>");
-                //关闭时 优雅关闭
-                Optional.ofNullable(zookeeperConfigurationCLoseWarp.getNodeCache()).ifPresent(nodeCache -> {
-                    try {
-                        nodeCache.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
-            }));
+            zookeeperConfigurationCentreProperties.setJdbcUrl("jdbc:mysql://localhost:3306/blog_system?useUnicode=true&useSSL=false&characterEncoding=UTF-8");
+
+            zookeeperConfigurationCentreProperties.setUsername("root");
+            zookeeperConfigurationCentreProperties.setPassword("123456");
+
+            ZookeeperConfigurationCentreProperties.Hikari hikari = new ZookeeperConfigurationCentreProperties.Hikari();
+            zookeeperConfigurationCentreProperties.setHikari(hikari);
+            this.instertSpringBean("zookeeperConfigurationCentreProperties",zookeeperConfigurationCentreProperties);
+
         }
     }
 
@@ -68,10 +69,22 @@ public class EnableConfigurationCenterClientImport implements  ResourceLoaderAwa
     @Override
     public void setResourceLoader(ResourceLoader resourceLoader) {
 
+        this.resourceLoader = resourceLoader;
         this.applicationContext = (ApplicationContext) resourceLoader;
         this.autowireCapableBeanFactory = applicationContext.getAutowireCapableBeanFactory();
         ConfigurableApplicationContext configurableApplicationContext = (ConfigurableApplicationContext) applicationContext;
         this.defaultListableBeanFactory = (DefaultListableBeanFactory) configurableApplicationContext.getBeanFactory();
     }
 
+    @Override
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
+
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+
+        this.beanFactory = beanFactory;
+    }
 }
