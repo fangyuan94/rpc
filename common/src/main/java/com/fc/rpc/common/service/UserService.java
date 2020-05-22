@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
  * @author fangyuan
  * 对外提供user服务
  */
-@RPCFeign(host = "localhost",port = "8081")
+@RPCFeign(serverName = "test")
 public interface UserService {
 
     /**

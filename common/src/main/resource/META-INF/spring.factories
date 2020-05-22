@@ -1,0 +1,7 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.fc.rpc.common.config.ZookeeperAutoConfiguration,\
+  com.fc.configCentre.config.ZKConfigurationCentreClientAutoConfiguration,\
+  com.fc.configCentre.config.ZKConfigurationCentreServerAutoConfiguration,\
+  org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration,\
+  com.fc.rpc.common.config.RPCFeignClientConfiguration,\
+  com.fc.rpc.common.config.RPCFeignServerZkDiscoveryConfiguration

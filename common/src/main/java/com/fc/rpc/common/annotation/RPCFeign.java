@@ -11,10 +11,13 @@ import java.lang.annotation.*;
 @Documented
 public @interface RPCFeign {
 
+    //被调用服务名称
+    String serverName() default "";
+
     //rpc提供host
-    String host();
+    String host() default "";
 
     //rpc服务端提供port号
-    String port() ;
+    String port() default "";
 
 }

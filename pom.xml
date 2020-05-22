@@ -46,6 +46,7 @@
         <module>common</module>
         <module>consumer</module>
         <module>provider</module>
+        <module>configuration_entre_server</module>
     </modules>
 
     <build>

@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="consumer" />
         <module name="common" />
+        <module name="configuration_entre_server" />
         <module name="provider" />
       </profile>
     </annotationProcessing>
@@ -15,6 +16,7 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="common" options="-parameters" />
+      <module name="configuration_entre_server" options="-parameters" />
       <module name="consumer" options="-parameters" />
       <module name="provider" options="-parameters" />
     </option>

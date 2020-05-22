@@ -1,9 +1,11 @@
 package com.fc.rpc.common.handler;
 
+import com.fc.rpc.common.heartbeat.ClientInstanceInfo;
 import com.fc.rpc.common.pojo.reps.RpcResponse;
 import com.fc.rpc.common.pojo.req.RpcRequest;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import org.apache.curator.framework.CuratorFramework;
 
 import java.util.concurrent.Callable;
 
@@ -18,7 +20,6 @@ public class RPCClientHandler extends ChannelInboundHandlerAdapter implements Ca
     private RpcRequest para;
 
     private RpcResponse result;
-
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -35,7 +36,6 @@ public class RPCClientHandler extends ChannelInboundHandlerAdapter implements Ca
 
     }
 
-
     @Override
     public  Object call() throws Exception {
         //每次执行一个线程
@@ -50,4 +50,5 @@ public class RPCClientHandler extends ChannelInboundHandlerAdapter implements Ca
     public void setPara(RpcRequest para) {
         this.para = para;
     }
+
 }

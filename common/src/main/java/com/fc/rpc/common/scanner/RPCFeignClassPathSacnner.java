@@ -22,13 +22,14 @@ import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.util.Assert;
 
 import java.lang.annotation.Annotation;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class RPCFeignClassPathSacnner extends ClassPathBeanDefinitionScanner {
 
     private Class<? extends Annotation> annotationClass;
+
+    private List<RPCMapper> rpcMappers    = new ArrayList<>(8);
+
 
     public RPCFeignClassPathSacnner(BeanDefinitionRegistry registry) {
         super(registry);
@@ -56,7 +57,6 @@ public class RPCFeignClassPathSacnner extends ClassPathBeanDefinitionScanner {
 
         //扫描路径下所对应接口 并实例化
         Set<BeanDefinitionHolder> beanDefinitions = super.doScan(basePackages);
-
         //
         ScannedGenericBeanDefinition definition;
 
@@ -67,10 +67,13 @@ public class RPCFeignClassPathSacnner extends ClassPathBeanDefinitionScanner {
 
             RPCMapper rpcMapper = new RPCMapper();
 
+            rpcMapper.setName("" + rpcFeignParam.get("serverName"));
+
             rpcMapper.setHost("" + rpcFeignParam.get("host"));
 
             rpcMapper.setPort("" + rpcFeignParam.get("port"));
 
+            rpcMappers.add(rpcMapper);
             //获取beanClassName全名
             String beanClassName = definition.getBeanClassName();
             //设置对应的构造函数参数
@@ -113,5 +116,9 @@ public class RPCFeignClassPathSacnner extends ClassPathBeanDefinitionScanner {
     protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
         //代表通过cglib生成代理对象
         return beanDefinition.getMetadata().isInterface() && beanDefinition.getMetadata().isIndependent();
+    }
+
+    public List<RPCMapper> getRpcMappers() {
+        return rpcMappers;
     }
 }

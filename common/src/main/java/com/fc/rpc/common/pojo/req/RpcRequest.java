@@ -3,12 +3,15 @@ package com.fc.rpc.common.pojo.req;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
 @Getter
 @Setter
-public class RpcRequest {
+public class RpcRequest implements Serializable {
+
+    private static final long serialVersionUID = -6367686790363353703L;
     /**
      *      * 请求对象的ID
      *      

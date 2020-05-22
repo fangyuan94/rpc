@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import(RPCFeignServerImport.class)
+@Import(EnableRPCFeignServerImport.class)
 public @interface EnableRPCFeignServer {
     //是否开启RPCFeignServer
     boolean enable() default true;

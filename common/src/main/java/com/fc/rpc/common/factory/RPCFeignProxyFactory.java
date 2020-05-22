@@ -1,21 +1,17 @@
 package com.fc.rpc.common.factory;
 
-import com.fc.rpc.common.coder.RpcRequestDecoder;
-import com.fc.rpc.common.coder.RpcRequestEncoder;
-import com.fc.rpc.common.coder.RpcResponseDecoder;
-import com.fc.rpc.common.coder.RpcResponseEncoder;
 import com.fc.rpc.common.handler.MethodCglibInvocationHandler;
 import com.fc.rpc.common.handler.RPCClientHandler;
+import com.fc.rpc.common.heartbeat.ClientInstanceInfo;
+import com.fc.rpc.common.loadBalancing.FairLoadBalance;
+import com.fc.rpc.common.loadBalancing.LoadBalance;
+import com.fc.rpc.common.loadBalancing.LocalLoadBalance;
 import com.fc.rpc.common.mapper.RPCMapper;
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
+import com.fc.rpc.common.mapper.RPCNettyClient;
+import com.fc.rpc.common.utils.NettyServerUtils;
 import net.sf.cglib.proxy.Enhancer;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -25,16 +21,16 @@ import net.sf.cglib.proxy.Enhancer;
  */
 public class RPCFeignProxyFactory {
 
-    private  RPCClientHandler rpcClientHandler;
+    private LoadBalance loadBalance;
 
     /**
      * 使用cglib动态代理生成代理对象
      * @return
      */
     public  Object getCglibProxy(Class<?> classes, RPCMapper rpcMapper) {
-        //构建netty服务端
+        //构建 客户端
         initNettyClient(rpcMapper);
-        return  Enhancer.create(classes, new MethodCglibInvocationHandler(classes,rpcClientHandler));
+        return  Enhancer.create(classes, new MethodCglibInvocationHandler(classes,loadBalance));
     }
 
     //使用netty连接
@@ -44,33 +40,24 @@ public class RPCFeignProxyFactory {
 
         String port = rpcMapper.getPort();
 
-        EventLoopGroup group = new NioEventLoopGroup();
+        //使用ip地址访问
+        if(host == null ||host.isEmpty() || port == null ||port.isEmpty()){
 
-        Bootstrap bootstrap = new Bootstrap();
+//            ConcurrentHashMap<String, ClientInstanceInfo> clientInstanceInfos = rpcMapper.getClientInstanceInfos();
+//
+//            ConcurrentHashMap<String, RPCNettyClient> rpcNettyClients   = new ConcurrentHashMap<>(clientInstanceInfos.size());
+//            //构建服务
+//            clientInstanceInfos.forEach((k,v)->{
+//                rpcNettyClients.put(k,NettyServerUtils.initNettyClient(v.getIp(),v.getPort()));
+//            });
+//
+//            rpcMapper.setRpcNettyClients(rpcNettyClients);
 
-        rpcClientHandler = new RPCClientHandler();
-
-        bootstrap.group(group)
-                .channel(NioSocketChannel.class)
-                .option(ChannelOption.TCP_NODELAY,true)
-                .handler(new ChannelInitializer<SocketChannel>() {
-                    protected void initChannel(SocketChannel ch) throws Exception {
-                        ChannelPipeline pipeline = ch.pipeline();
-                        pipeline.addLast(new RpcRequestEncoder());
-                        pipeline.addLast(new RpcResponseDecoder());
-                        pipeline.addLast(rpcClientHandler);
-                    }
-                });
-        try {
-            bootstrap.connect(host,Integer.valueOf(port)).sync();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            try {
-                group.shutdownGracefully().sync();
-            } catch (InterruptedException ex) {
-                ex.printStackTrace();
-            }
+            //获取所有节点信息 构建netty服务
+            loadBalance = new FairLoadBalance(rpcMapper);
+        }else{
+            RPCNettyClient rpcNettyClient = NettyServerUtils.initNettyClient(host,Integer.valueOf(port));
+            loadBalance = new LocalLoadBalance(rpcNettyClient);
         }
     }
-
 }

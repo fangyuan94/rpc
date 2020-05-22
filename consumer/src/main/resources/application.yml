@@ -11,3 +11,7 @@ server:
     accept-count: 200
     ##将保留在缓存中并在后续请求中重用的空闲处理器的最大数目。当设置为-1时，缓存将不受限制，理论最大大小等于最大连接数。
     processor-cache: 200
+fc:
+  configurationCentre:
+    enable: true
+    serverName: local
