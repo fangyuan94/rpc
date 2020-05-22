@@ -1,12 +1,12 @@
 package com.fc.rpc;
 
 import com.fc.configCentre.annotation.EnableConfigurationCenterClient;
-import com.fc.rpc.common.annotation.EnableRPCFeignClient;
+import com.fc.rpc.common.annotation.EnableRPCFeignServer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@EnableRPCFeignClient(port = "8085",host = "localhost"
+@EnableRPCFeignServer(port = "8085",host = "localhost"
         ,packages = "com.fc.rpc.provider.service",enable = true,serverName = "test")
 @EnableConfigurationCenterClient(enable = true)
 public class ProviderApplication {
